@@ -31,7 +31,7 @@ router.get('/:id', (req,res)=>{
   })
 })
 
-/* post
+ 
 router.post('/', (req, res) => {
   User.create({
     username: req.body.username,
@@ -40,12 +40,13 @@ router.post('/', (req, res) => {
   })
     .then(dbUserData => res.json(dbUserData))
     .catch(err => {
-      console.log(500).json(err)
+      res.status(500).json(err)
     })
 })
 // update
 router.put('/:id', (req, res) => {
   User.update(req.body, {
+    individualHooks: true,
     where: {
       id: req.params.id
     }
@@ -81,5 +82,27 @@ router.delete('/:id', (req,res)=>{
   res.status(500).json(err)
 });
 });
-*/
+
+router.post('/login', (req,res)=> {
+  //expects {email: xxx, password:xxx}
+  User.findOne({
+    where: {
+      email:req.body.email
+    }
+  }).then(dbUserData => {
+    if (!dbUserData){
+      res.status(400).json({ message: "no user with that email address"})
+      return
+    }
+   // res.json({ user: dbUserData })
+    //verify
+    const validPassword = dbUserData.checkPassword(req.body.password)
+    if(!validPassword){
+      res.status(400).json({ message: 'Incorrect password' })
+      return
+    }
+    res.json({ user:dbUserData, message: "you are now logged in" })
+  })
+})
+
 module.exports = router

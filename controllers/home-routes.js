@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const res = require("express/lib/response");
 const sequelize = require("../config/connection");
 const { Post, User, Comment } = require("../models");
 
@@ -36,7 +35,7 @@ router.get("/", (req, res) => {
     .then((dbPostData) => {
       // pass a single post object into the homepage template
       const posts = dbPostData.map((post) => post.get({ plain: true }));
-      res.render("homepage", { posts });
+      res.render("homepage", { posts, loggedIn: req.session.loggedIn });
     })
     .catch((err) => {
       console.log(err);
@@ -89,7 +88,8 @@ router.get("/post/:id", (req, res) => {
       }
       //serialize data
       const post = dbPostData.get({ plain: true });
-      res.render("single-post", { post });
+      res.render("single-post", {
+         post, loggedIn: req.session.loggedIn });
     })
     .catch((err) => {
       console.log(err);
